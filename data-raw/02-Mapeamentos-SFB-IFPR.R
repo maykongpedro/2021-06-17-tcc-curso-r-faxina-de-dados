@@ -22,7 +22,7 @@ tabela_ext <- tabulizer::extract_tables(url_mapeamento, pages = 30)
 
 # Transformar dados -------------------------------------------------------
 
-# ajustar dados - all
+# ajustar dados - all - tabela de área total
 tabela_arrumada <-
   tabela_ext %>% 
   # selecionar o item 1 da lista
@@ -68,11 +68,16 @@ tabela_arrumada <-
   
   # retirar coluna de ID
   dplyr::select(-id) %>% 
+  
+  # add um identificador da tabela e realocar ele
+  dplyr::mutate(tabela_fonte = "Área Total") %>% 
+  dplyr::relocate(tabela_fonte, .before = regiao) %>% 
 
   # separar coluna de gênero
   tidyr::separate(col = eucalipto_pinus,
                   sep = " ",
-                  into = c("eucalipto", "pinus"))
+                  into = c("eucalipto", "pinus")) 
+
 
 
 # Verificar no console
@@ -82,12 +87,28 @@ tabela_arrumada %>%
 
 # Corrigir tipos de dados
 loc <- readr::locale(decimal_mark = ",", grouping_mark = ".")
-
 tabela_tidy <- 
   tabela_arrumada %>% 
-  dplyr::mutate(dplyr::across(.cols = corte:total,
-                              readr::parse_number, locale = loc))
+  dplyr::mutate(
     
+    # ajustar colunas de áreas
+    dplyr::across(.cols = corte:total,
+                  readr::parse_number,locale = loc),
+    
+    # remover '%'
+    percentual = stringr::str_remove_all(percentual, "%"),
+    
+    # ajustar coluna de percentual
+    percentual = readr::parse_number(percentual,
+                                     locale = loc),
+    
+    # dividir por 100
+    percentual = percentual/100
+    
+    )
+
+print(tabela_tidy)
+
 
 
 # Deletar arquivos temporários --------------------------------------------
