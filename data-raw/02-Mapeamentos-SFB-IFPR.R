@@ -8,7 +8,8 @@ pacman::p_load(tidyverse, janitor, usethis, pdftools, tabulizer)
 '%>%' <- magrittr::`%>%`
 
 
-# Testando com mapeamento do PR -------------------------------------------
+
+# Visualizar pdf ----------------------------------------------------------
 
 # ver páginas
 url_mapeamento <- "./data-raw/pdf/IFPR e SFB – Mapeamento dos plantios florestais do estado do Paraná.pdf"
@@ -18,8 +19,11 @@ pdftools::pdf_convert(url_mapeamento, pages = 30, filenames = "./inst/ifpr_pag30
 tabela_ext <- tabulizer::extract_tables(url_mapeamento, pages = 30)
 
 
+
+# Transformar dados -------------------------------------------------------
+
 # ajustar dados - all
-tabela_tidy <-
+tabela_arrumada <-
   tabela_ext %>% 
   # selecionar o item 1 da lista
   purrr::pluck(1) %>% 
@@ -63,21 +67,27 @@ tabela_tidy <-
   tidyr::drop_na() %>% 
   
   # retirar coluna de ID
-  dplyr::select(-id)
-  
+  dplyr::select(-id) %>% 
+
+  # separar coluna de gênero
+  tidyr::separate(col = eucalipto_pinus,
+                  sep = " ",
+                  into = c("eucalipto", "pinus"))
+
 
 # Verificar no console
-tabela_tidy %>% 
-  print(n = nrow(tabela_tidy))
+tabela_arrumada %>% 
+  print(n = nrow(tabela_arrumada))
 
 
-# Separar coluna de gênero
+# Corrigir tipos de dados
+loc <- readr::locale(decimal_mark = ",", grouping_mark = ".")
 
-
-
-
-
-
+tabela_tidy <- 
+  tabela_arrumada %>% 
+  dplyr::mutate(dplyr::across(.cols = corte:total,
+                              readr::parse_number, locale = loc))
+    
 
 
 # Deletar arquivos temporários --------------------------------------------
