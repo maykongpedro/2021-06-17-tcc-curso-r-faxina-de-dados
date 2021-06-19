@@ -137,77 +137,148 @@ tabela_tidy <-
 print(tabela_tidy)
 
 
-# Tabela 2 - Extrair e transformar dados ----------------------------------
 
+# Tabela 2 em diante - Páginas com imagens --------------------------------
 
+# otter caminho
 paginas_processadas <- "./data-raw/pdf/01-SFB-IFPR/IFPR e SFB-páginas-36,40,42,44-46,48-49,51-53,55,57-58,60-61,63-64,66,68-69,71-tabelas.pdf"
+nucleos_regionais_tab_imgs <- c("Campo Mourão",
+                                "Curitiba",
+                                "Guarapuava",
+                                "Irati",
+                                "Laranjeiras do Sul - a",
+                                "Laranjeiras do Sul - b",
+                                "Ponta Grossa - a",
+                                "Ponta Grossa - b",
+                                "Paranaguá",
+                                "Cianorte - a",
+                                "Cianorte - b",
+                                "Umuarama",
+                                "Apucarana",
+                                "Cornélio Procópio",
+                                "Ivaiporã - a",
+                                #"Ivaiporã - b",
+                                "Londrina - a",
+                                "Londrina - b",
+                                "Cascavel",
+                                "Dois Vizinhos",
+                                "Francisco Beltrão",
+                                "Toledo"
+                                )
 
+# extrair tabelas
 tabelas_pag_com_imgs <-
   tabulizer::extract_tables(paginas_processadas,
                             method = "stream")
 
+# Nomear listas
+names(tabelas_pag_com_imgs) <- nucleos_regionais_tab_imgs
+
+# Printar no console
 print(tabelas_pag_com_imgs)
 
 
-# Páginas apenas com tabelas as quais foram identificadas corretamente
-paginas_tabelas <- c(37, 41, 43, 56, 59, 65, 67, 72)
-nucleos_regionais_tab <- c("Campo Mourão",
-                           "Curitiba",
-                           "Guarapuava",
-                           "Umuarama",
-                           "Cornélio Procópio",
-                           "Maringá",
-                           "Cascavel",
-                           "Toledo"
-                           )
 
+
+# Tabela Ivaiporã - b -----------------------------------------------------
+
+# Ivaiporã - b (pág 16 do arquivo de tabelas com imagens) não quis funcionar.
+# Foi necessário extrair a página, converter para word, apagar tudo e deixar
+# somente a tabela, ai sim salvar novamente em pdf.
+
+# Não captura nada
+tabela_ivaipora_b <- tabulizer::extract_tables(paginas_processadas,
+                                               pages = 16,
+                                               method = "lattice")
+
+print(tabela_ivaipora_b)
+
+# Arquivo processado apenas com a tabela da página 61 do mapeamento original
+pag61 <- "./data-raw/pdf/01-SFB-IFPR/IFPR e SFB-61-apenas-tabela.pdf"
+tabela_ivaipora_b <- tabulizer::extract_tables(pag61)
+
+# Nomeia a lista
+names(tabela_ivaipora_b) <- "Ivaiporã - b"
+
+# Printa no console
+print(tabela_ivaipora_b)
+
+
+
+# Tabela 2 em diante - Páginas sem imagens com tabelas ident. -------------
+
+# Páginas apenas com tabelas que foram identificadas corretamente
+paginas_tabelas <- c(37, 41, 43, 56, 59, 65, 67, 72)
+nucleos_regionais_tab_ident <- c("Campo Mourão",
+                                 "Curitiba",
+                                 "Guarapuava",
+                                 "Umuarama",
+                                 "Cornélio Procópio",
+                                 "Maringá",
+                                 "Cascavel",
+                                 "Toledo"
+                                )
+# Extrair tabelas
 tabelas_pag_sem_imgs <- tabulizer::extract_tables(url_mapeamento,
                                                   pages = paginas_tabelas,
                                                   method = "stream")
-# Nomeando cada uma das listas
-tabelas_pag_sem_imgs_nomeadas <- list(
-  Campo_Mourao = tabelas_pag_sem_imgs[[1]],
-  Curitiba = tabelas_pag_sem_imgs[[2]],
-  Guarapuava =  tabelas_pag_sem_imgs[[3]],
-  Umuarama = tabelas_pag_sem_imgs[[4]],
-  Cornelio_Procopio = tabelas_pag_sem_imgs[[5]],
-  Maringa = tabelas_pag_sem_imgs[[6]],
-  Cascavel = tabelas_pag_sem_imgs[[7]],
-  Toledo = tabelas_pag_sem_imgs[[8]]
-)
 
-tabelas_pag_sem_imgs_nomeadas
+# Renomear listas
+names(tabelas_pag_sem_imgs) <- nucleos_regionais_tab_ident
+
+# printar no console
 print(tabelas_pag_sem_imgs)
 
 
 
+# Tabela 2 em diante - Páginas sem imagens com tabelas zoadas ------------
 
-
+# Páginas que a tabela ficou mal identificada na extração
 paginas_tabelas_semi_ident <- c(47, 50, 54, 62)
 nucleos_regionais_tab_semi_ident <- c("Pato Branco",
                                       "União da Vitória",
                                       "Paranavaí",
                                       "Jacarezinho")
 
+# extrair tabelas
+tabelas_pag_sem_imgs_tab_semi_ident <-
+  tabulizer::extract_tables(url_mapeamento,
+                            pages = paginas_tabelas_semi_ident)
+
+# Renomear listas
+names(tabelas_pag_sem_imgs_tab_semi_ident) <- nucleos_regionais_tab_semi_ident
+
+# Printar no console
+print(tabelas_pag_sem_imgs_tab_semi_ident)
 
 
 
-# Francisco Beltrão (pág 70) não quis funcionar. Foi necessário extrair
+
+# Tabela Francisco Beltrão - b --------------------------------------------
+
+# Francisco Beltrão - b (pág 70) não quis funcionar. Foi necessário extrair
 # a página, converter para word e salvar novamente em pdf
 
 # Não captura nada
 tabela_fb <- tabulizer::extract_tables(url_mapeamento,
                                        pages = 70)
 
+print(tabela_fb)
+
+
 # Arquivo processado apenas com a página 70
 pag70 <- "./data-raw/pdf/01-SFB-IFPR/IFPR e SFB-70-tabela.pdf"
 tabela_fb <- tabulizer::extract_tables(pag70,
                                        pages = 1)
+
+# Nomeia a lista
+names(tabela_fb) <- "Francisco Beltrão"
+
+# Printa no console
 print(tabela_fb)
 
 
 
 
-
 # Deletar arquivos temporários --------------------------------------------
-fs::file_delete("./inst/ifpr_pag30.png")
+#fs::file_delete("./inst/ifpr_pag30.png")
