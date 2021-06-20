@@ -19,7 +19,7 @@ paginas_alvo <- c(30, 36, 37, 40:72)
 # definir caminho e nomes para cada arquivo imagem
 nome_arquivos <- paste0("./inst/01-PR-SFB-IFPR/" , paginas_alvo, ".png")
 
-# salvar cada página para visualizar
+# salvar cada página para visualizar no diretório
 pdftools::pdf_convert(url_mapeamento, 
                       pages = paginas_alvo,
                       filenames = nome_arquivos)
@@ -31,7 +31,7 @@ pdftools::pdf_convert(url_mapeamento,
 # Para contornar isso, fiz a extração das páginas que tem imagens e tabelas,
 # converti para word e retirei as imagens dessas páginas, após isso, salvei
 # novamente as páginas em pdf, assim gerando um arquivo adicional com todas
-# as páginas que continham tabela e imagem na mesma folha porém agora somente
+# as páginas que continham tabela e imagem na mesma folha, porém agora somente
 # com a tabela.
 
 # esse é um exeplo do erro disparado porque tem uma imagem na página
@@ -106,7 +106,6 @@ tabela_arrumada <-
                   into = c("eucalipto", "pinus")) 
 
 
-
 # Verificar no console
 tabela_arrumada %>% 
   print(n = nrow(tabela_arrumada))
@@ -120,21 +119,29 @@ tabela_tidy <-
     
     # ajustar colunas de áreas
     dplyr::across(.cols = corte:total,
-                  readr::parse_number,locale = loc),
-    
-    # remover '%'
-    percentual = stringr::str_remove_all(percentual, "%"),
-    
-    # ajustar coluna de percentual
-    percentual = readr::parse_number(percentual,
-                                     locale = loc),
-    
-    # dividir por 100
-    percentual = percentual/100
+                  readr::parse_number,locale = loc)
     
     )
 
-print(tabela_tidy)
+tibble::view(tabela_tidy)
+
+# Como a próxima etapa é transformar algumas coluans em linhas, acho desnecessário
+# manter a coluna de percentual e total, pois ambas podem ser obtida facilmente 
+# por meio de funções do tidyverse, além de poderem ocasioanr confusões ao longo
+# de análises
+tabela_tidy <- 
+  tabela_tidy %>% 
+  dplyr::select(-percentual, -total)
+
+
+# Transformar colunas de áreas em linhas
+tb_area_total <-
+  tabela_tidy %>% 
+  tidyr::pivot_longer(cols = corte:pinus,
+                      names_to = "tipo_genero",
+                      values_to = "area_ha")
+
+tibble::view(tb_area_total)
 
 
 
