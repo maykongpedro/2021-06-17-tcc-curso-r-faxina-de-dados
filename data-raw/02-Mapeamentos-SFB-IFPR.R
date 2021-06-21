@@ -186,25 +186,11 @@ print(tabelas_pag_com_imgs)
 
 
 # Extração genérica
-tb_campo_mourao_a <-
-  tabelas_pag_com_imgs %>% 
-  purrr::pluck("Campo Mourão") %>% 
-  tibble::as_tibble(.name_repair = "unique") %>%
-  purrr::set_names(c("municipio", "corte", "eucalipto", "pinus", "total", "percentual")) %>% 
-  dplyr::slice(-c(1:3)) %>% 
-  dplyr::mutate(dplyr::across(dplyr::everything(),
-                              dplyr::na_if, "")) %>% 
-  dplyr::select(-total, -percentual) %>% 
-  dplyr::mutate(tabela_fonte = paste0("Área de Plantio de ",
-                                      names(tabelas_pag_com_imgs[1])),
-                nucleo_regional = names(tabelas_pag_com_imgs[1])) %>% 
-  dplyr::relocate(tabela_fonte:nucleo_regional, .before = municipio) 
-  
+tb_campo_mourao_a <- faxinar_tabela_ng_pag_com_img(tabelas_pag_com_imgs, nucleos_regionais_tab_imgs[1])
 
 print(tb_campo_mourao_a, n =50)
 
 
-faxinar_tabela_ng_pag_com_img(tabelas_pag_com_imgs, nucleos_regionais_tab_imgs[1])
 
 
 
