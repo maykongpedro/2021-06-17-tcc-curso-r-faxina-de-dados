@@ -186,7 +186,7 @@ print(tabelas_pag_com_imgs)
 
 
 # Extração genérica
-tb_campo_mourao_a <- faxinar_tabela_ng_pag_com_img(tabelas_pag_com_imgs, nucleos_regionais_tab_imgs[1])
+tb_campo_mourao_a <- map_sfb_faxinar_tabela_ng_pag_com_img(tabelas_pag_com_imgs, nucleos_regionais_tab_imgs[1])
 
 print(tb_campo_mourao_a, n =50)
 
