@@ -193,7 +193,7 @@ print(tabelas_pag_com_imgs)
 # Foi necessário extrair a página, converter para word, apagar tudo e deixar
 # somente a tabela, ai sim salvar novamente em pdf.
 
-# Não captura nada
+# Não captura a informação completa
 tabela_ivaipora_b <- tabulizer::extract_tables(paginas_processadas,
                                                pages = 16,
                                                method = "lattice")
