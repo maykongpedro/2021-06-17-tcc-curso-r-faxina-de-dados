@@ -1,8 +1,8 @@
 
 
 # Carregar e instalar pacotes necessários ---------------------------------
-if(!require("pacman")) install.packages("pacman")
-pacman::p_load(tidyverse, janitor, usethis, pdftools, tabulizer)
+# if(!require("pacman")) install.packages("pacman")
+# pacman::p_load(tidyverse, janitor, usethis, pdftools, tabulizer)
 
 # Carregar apenas pipe
 '%>%' <- magrittr::`%>%`
@@ -130,10 +130,10 @@ tibble::view(tabela_tidy)
 # por meio de funções do tidyverse, além de poderem ocasionar confusões ao longo
 # de análises. Também optei por retirar o núcleo regional "sub-total", que representa
 # a soma de todos os núcleos dentro da região.
-
 tabela_tidy <- 
   tabela_tidy %>% 
-  dplyr::select(-percentual, -total)
+  dplyr::select(-percentual, -total) %>% 
+  dplyr::filter(nucleo_regional != "Sub-Total")
 
 
 # Transformar colunas de áreas em linhas
@@ -147,5 +147,5 @@ tibble::view(tb_area_total)
 
 
 # Salvar tabela -----------------------------------------------------------
-
+saveRDS(tb_area_total,"./data/tb_area_total.rds")
 
