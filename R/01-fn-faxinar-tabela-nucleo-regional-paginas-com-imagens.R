@@ -63,27 +63,3 @@ faxinar_tabela_ng_pag_com_img <- function(tabela_bruta_extraida, nome_nucleo_reg
 
 }
 
-# faxinar_tabela_ng_pag_com_img <- function(tabela_bruta_extraida, nome_nucleo_regional) {
-#     
-#     tabela_faxinada <-
-#       tabela_bruta_extraida %>% 
-#       purrr::pluck(nome_nucleo_regional) %>% 
-#       tibble::as_tibble(.name_repair = "unique") %>%
-#       purrr::set_names(c("municipio", "corte", "eucalipto", "pinus", "total", "percentual")) %>% 
-#       dplyr::slice(-c(1:3)) %>% 
-#       dplyr::mutate(dplyr::across(dplyr::everything(),
-#                                   dplyr::na_if, "")) %>% 
-#       dplyr::select(-total, -percentual) %>%
-#       dplyr::mutate(tabela_fonte = paste0("Área de Plantio de ",
-#                                           nome_nucleo_regional),
-#                     nucleo_regional = nome_nucleo_regional) %>%
-#       dplyr::relocate(tabela_fonte:nucleo_regional, .before = municipio) %>% 
-#       dplyr::mutate(dplyr::across(.cols = corte:pinus,
-#                                   readr::parse_number, locale = loc)) %>% 
-#       tidyr::pivot_longer(cols = corte:pinus,
-#                           names_to = "tipo_genero",
-#                           values_to = "area_ha")
-#     
-#     tabela_faxinada
-#     
-# }
