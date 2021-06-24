@@ -247,6 +247,9 @@ print(tab_ivaipora_b_tidy)
 
 # Tabela 2 em diante - Páginas sem imagens com tabelas ident. -------------
 
+# caminho do pdf
+url_mapeamento <- "./data-raw/pdf/01-SFB-IFPR/IFPR e SFB – Mapeamento dos plantios florestais do estado do Paraná.pdf"
+
 # Páginas apenas com tabelas que foram identificadas corretamente
 paginas_tabelas <- c(37, 41, 43, 56, 59, 65, 67, 72)
 nucleos_regionais_tab_ident <- c("Campo Mourão",
@@ -305,16 +308,23 @@ tabelas_pag_sem_imgs %>%
                   sep = " ",
                   into = c("eucalipto", "pinus")) %>%
   
-  
   # como retiro os números que acabam em %?
   
-  dplyr::mutate(pinus = stringr::str_remove_all(pinus, "([0-9])+"))
+  dplyr::mutate(
+    
+    pinus = dplyr::case_when(stringr::str_detect(pinus, "%") ~ NA_character_,
+                             TRUE ~ pinus),
+    
+    eucalipto = dplyr::case_when(stringr::str_detect(eucalipto, "%") ~ NA_character_,
+                                 TRUE ~ eucalipto),
+    
+    corte = dplyr::case_when(stringr::str_detect(corte, "%") ~ NA_character_,
+                             TRUE ~ corte)
+    
+    )
   
-  # dplyr::filter(stringr::str_detect(pinus, "%$") |
-  #                 stringr::str_detect(eucalipto, "%$") |
-  #                 stringr::str_detect(corte, "%$"))
-  
-  #dplyr::mutate(pinus = stringr::str_remove_all(pinus, end_with("%")))
+
+
 
 
 
