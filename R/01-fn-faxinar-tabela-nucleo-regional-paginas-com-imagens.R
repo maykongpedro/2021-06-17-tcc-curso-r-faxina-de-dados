@@ -34,6 +34,8 @@ faxinar_tabela_ng_pag_com_img <- function(tabela_bruta_extraida, nome_nucleo_reg
                       into = c("eucalipto", "pinus")) %>%
       dplyr::mutate(dplyr::across(.cols = corte:pinus,
                                   readr::parse_number, locale = loc)) %>%
+      dplyr::filter(!municipio %in% c("TOTAL", "%")) %>% 
+      
       tidyr::pivot_longer(cols = corte:pinus,
                           names_to = "tipo_genero",
                           values_to = "area_ha")
@@ -55,6 +57,7 @@ faxinar_tabela_ng_pag_com_img <- function(tabela_bruta_extraida, nome_nucleo_reg
       dplyr::relocate(tabela_fonte:nucleo_regional, .before = municipio) %>%
       dplyr::mutate(dplyr::across(.cols = corte:pinus,
                                   readr::parse_number, locale = loc)) %>%
+      dplyr::filter(!municipio %in% c("TOTAL", "%")) %>% 
       tidyr::pivot_longer(cols = corte:pinus,
                           names_to = "tipo_genero",
                           values_to = "area_ha")

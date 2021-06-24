@@ -191,15 +191,27 @@ faxinar_tabela_ng_pag_com_img(tabelas_pag_com_imgs,
 
 
 # Extrair e juntar todas as tabelas
-purrr::map_dfr(.x = nucleos_regionais_tab_imgs, 
-               ~ faxinar_tabela_ng_pag_com_img(tabelas_pag_com_imgs,
-                                               .x))
+tabelas_tidy_pag_com_imgs <-
+  purrr::map_dfr(.x = nucleos_regionais_tab_imgs,
+                 ~ faxinar_tabela_ng_pag_com_img(tabelas_pag_com_imgs, .x))
 
 # outra notação
-purrr::map_dfr(.x = nucleos_regionais_tab_imgs, 
-               .f = faxinar_tabela_ng_pag_com_img,
-               tabela_bruta_extraida = tabelas_pag_com_imgs)
-# arrumar
+# purrr::map_dfr(.x = nucleos_regionais_tab_imgs, 
+#                .f = faxinar_tabela_ng_pag_com_img,
+#                tabela_bruta_extraida = tabelas_pag_com_imgs)
+print(tabelas_tidy_pag_com_imgs)
+
+
+# Arrumar nomes de tabelas "a" e "b"
+tabelas_tidy_pag_com_imgs <-
+  tabelas_tidy_pag_com_imgs %>% 
+  dplyr::mutate(tabela_fonte = stringr::str_remove_all(tabela_fonte, " - a"),
+                tabela_fonte = stringr::str_remove_all(tabela_fonte, " - b"),
+                nucleo_regional = stringr::str_remove_all(nucleo_regional, " - a"),
+                nucleo_regional = stringr::str_remove_all(nucleo_regional, " - b")
+                )
+
+
 
 
 # Tabela Ivaiporã - b -----------------------------------------------------
@@ -225,6 +237,12 @@ names(tabela_ivaipora_b) <- "Ivaiporã - b"
 # Printa no console
 print(tabela_ivaipora_b)
 
+# Faxinar a tabela 
+tab_ivaipora_b_tidy <-
+  faxinar_tabela_ng_pag_com_img(tabela_ivaipora_b, "Ivaiporã - b") %>% 
+  dplyr::filter(!municipio %in% c("TOTAL", "%"))
+
+print(tab_ivaipora_b_tidy)
 
 
 # Tabela 2 em diante - Páginas sem imagens com tabelas ident. -------------
@@ -250,6 +268,79 @@ names(tabelas_pag_sem_imgs) <- nucleos_regionais_tab_ident
 
 # printar no console
 print(tabelas_pag_sem_imgs)
+
+# Analisando o output de extração, chego nas seguintes situações por núcleo regional:
+# Campo Mourao = 5 colunas, retirar 5 linhas - Usar fórmula A
+# Curitiba = 5 colunas, retirar 5 linhas - Usar fórmula A
+# Guarapuava = 6 colunas, retirar 5 linhas, retirar quarta coluna - Extrair manualmente
+# Umuarama = 4 colunas, retirar 4 linhas, separar colunas de tipo em 3 - Extrair manualmente
+# Cornélio P. = 5 colunas, retirar 5 linhas - Usar fórmula A
+# Maringá = 5 colunas, retirar 3 linhas - Extrair manualmente
+# Cascavel = 4 colunas, retirar 5 linhas, separar colunas de tipo em 4 - Extrair manualmente
+# Toledo = 6 colunas, retirar 5 linhas - Usar fórmula A
+
+# O que consta como "fórmula A" irei utilizar uma fórmula para faxinar tudo de uma vez,
+# já para os outros itens, devido às suas peculariedades no momento da extração,
+# o caminho mais prático e seguro é fazer a fáxina e organização de cada um
+# individualmente.
+
+nucleos_formula_a <- c("Campo Mourão", "Curitiba", "Cornélio Procópio", "Toledo")
+
+
+# teste
+nome_nucleo_regional <- "Campo Mourão"
+tabelas_pag_sem_imgs %>% 
+  purrr::pluck(nome_nucleo_regional) %>%
+  tibble::as_tibble(.name_repair = "unique") %>%
+  purrr::set_names(c("municipio", "corte", "eucalipto_pinus", "total", "percentual")) %>%
+  dplyr::slice(-c(1:5)) %>%
+  dplyr::mutate(dplyr::across(dplyr::everything(),
+                              dplyr::na_if, "")) %>%
+  dplyr::select(-total, -percentual) %>%
+  dplyr::mutate(tabela_fonte = paste0("Área de Plantio de ",
+                                      nome_nucleo_regional),
+                nucleo_regional = nome_nucleo_regional) %>%
+  dplyr::relocate(tabela_fonte:nucleo_regional, .before = municipio) %>%
+  tidyr::separate(col = eucalipto_pinus,
+                  sep = " ",
+                  into = c("eucalipto", "pinus")) %>%
+  
+  
+  # como retiro os números que acabam em %?
+  
+  dplyr::mutate(pinus = stringr::str_remove_all(pinus, "([0-9])+"))
+  
+  # dplyr::filter(stringr::str_detect(pinus, "%$") |
+  #                 stringr::str_detect(eucalipto, "%$") |
+  #                 stringr::str_detect(corte, "%$"))
+  
+  #dplyr::mutate(pinus = stringr::str_remove_all(pinus, end_with("%")))
+
+
+
+tabelas_pag_sem_imgs[[2]]
+#tabelas_pag_sem_imgs[[5]] -> vou precisar retirar o % da coluna de pinus e da coluna de corte
+#tabelas_pag_sem_imgs[[8]] -> vou precisar retirar o % da coluna de pinus e da coluna de corte
+
+
+tab_guarapuava_tidy <-
+  tabelas_pag_sem_imgs %>% 
+  purrr::pluck("Guarapuava")
+
+
+tab_umuarama_tidy <-
+  tabelas_pag_sem_imgs %>% 
+  purrr::pluck("Umuarama")
+
+
+tab_maringa_tidy %>%
+  tabelas_pag_sem_imgs %>%
+  purrr::pluck("Maringá")
+
+
+tab_cascavel_tidy %>%
+  tabelas_pag_sem_imgs %>%
+  purrr::pluck("Cascavel")
 
 
 
