@@ -2,8 +2,10 @@
 #'
 #' Descrição da função
 #' Função utilizada para faxinar as tabelas de núcleos regionais das páginas do
-#' mapeamento SFB-IFPR. Deixando elas estruturadas de uma maneira prática e utilizável.
+#' mapeamento SFB-IFPR, deixando elas estruturadas de uma maneira prática e utilizável.
 #' O conceito de utilização como base de dados se estrutura no conceito de "tidy".
+#' Essa função foi especificamente ajustada para as páginas que continham tabelas
+#' e imagens.
 #' 
 #' @param tabela_bruta_extraida tabela extraida do pdf pela função tabulizer::extract_tables
 #' @param nome_nucleo_regional nome do núcleo regional
