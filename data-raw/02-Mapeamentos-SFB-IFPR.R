@@ -13,16 +13,16 @@ pacman::p_load(tidyverse, janitor, usethis, pdftools, tabulizer)
 # caminho do pdf
 url_mapeamento <- "./data-raw/pdf/01-SFB-IFPR/IFPR e SFB – Mapeamento dos plantios florestais do estado do Paraná.pdf"
 
-# definir páginas para extração
-paginas_alvo <- c(30, 36, 37, 40:72)
-
-# definir caminho e nomes para cada arquivo imagem
-nome_arquivos <- paste0("./inst/01-PR-SFB-IFPR/" , paginas_alvo, ".png")
-
-# salvar cada página para visualizar no diretório
-pdftools::pdf_convert(url_mapeamento, 
-                      pages = paginas_alvo,
-                      filenames = nome_arquivos)
+# # definir páginas para extração
+# paginas_alvo <- c(30, 36, 37, 40:72)
+# 
+# # definir caminho e nomes para cada arquivo imagem
+# nome_arquivos <- paste0("./inst/01-PR-SFB-IFPR/" , paginas_alvo, ".png")
+# 
+# # salvar cada página para visualizar no diretório
+# pdftools::pdf_convert(url_mapeamento, 
+#                       pages = paginas_alvo,
+#                       filenames = nome_arquivos)
 
 # Podemos perceber que tem algumas tabelas que são divididas entre páginas, e
 # algumas que estão em páginas que contém um mapa (imagem) na mesma página.
@@ -186,12 +186,20 @@ print(tabelas_pag_com_imgs)
 
 
 # Extração genérica
-tb_campo_mourao_a <- map_sfb_faxinar_tabela_ng_pag_com_img(tabelas_pag_com_imgs, nucleos_regionais_tab_imgs[1])
-
-print(tb_campo_mourao_a, n =50)
-
+faxinar_tabela_ng_pag_com_img(tabelas_pag_com_imgs, 
+                              nucleos_regionais_tab_imgs[9]) 
 
 
+# Extrair e juntar todas as tabelas
+purrr::map_dfr(.x = nucleos_regionais_tab_imgs, 
+               ~ faxinar_tabela_ng_pag_com_img(tabelas_pag_com_imgs,
+                                               .x))
+
+# outra notação
+purrr::map_dfr(.x = nucleos_regionais_tab_imgs, 
+               .f = faxinar_tabela_ng_pag_com_img,
+               tabela_bruta_extraida = tabelas_pag_com_imgs)
+# arrumar
 
 
 # Tabela Ivaiporã - b -----------------------------------------------------
