@@ -46,8 +46,7 @@ print(tabelas_pag_sem_imgs)
 # individualmente.
 
 
-
-# Extração núcleos pela mesma fórmula -------------------------------------
+# Extração núcleos regionais pela mesma fórmula ---------------------------
 
 # Definir núcleos que serão extraídos pela mesma fórmula
 nucleos_formula_a <- c("Campo Mourão", "Curitiba", "Cornélio Procópio", "Toledo")
@@ -107,40 +106,175 @@ tab_guarapuava_tidy <-
                       names_to = "tipo_genero",
                       values_to = "area_ha")
 
+print(tab_guarapuava_tidy, n = 10)
+
 
 # Umuarama ----------------------------------------------------------------
 
-# PROBLEMAAAAA
+nome_nucleo_regional <- "Umuarama"
 tab_umuarama_tidy <-
-  tabelas_pag_sem_imgs %>% 
+  tabelas_pag_sem_imgs %>%
   purrr::pluck("Umuarama") %>%
   tibble::as_tibble(.name_repair = "unique") %>%
-  purrr::set_names(c("municipio", "corte", "eucalipto_pinus_total", "percentual")) %>%
+  purrr::set_names(c("municipio", "corte", "euc_pin_total_perc", "percentual")) %>%
   dplyr::slice(-c(1:4)) %>%
+  tidyr::separate(
+    col = euc_pin_total_perc,
+    sep = " ",
+    into = c("eucalipto", "pinus", "total", "perc")
+  ) %>%
   dplyr::mutate(dplyr::across(dplyr::everything(),
                               dplyr::na_if, "")) %>%
+  dplyr::select(-percentual) %>%
+  dplyr::mutate(
+    eucalipto = dplyr::case_when(
+      stringr::str_detect(eucalipto, "%") ~ NA_character_,
+      TRUE ~ eucalipto
+    ),
+    
+    total = dplyr::case_when(stringr::str_detect(total, "%") ~ NA_character_,
+                             TRUE ~ total)
+    
+  ) %>%
+  dplyr::filter(!municipio %in% c("TOTAL", "%")) %>%
   
-  tidyr::separate(col = eucalipto_pinus_total,
-                  sep = " ",
-                  into = c("eucalipto", "pinus", "total")) %>%
-  dplyr::select(-total, -percentual) 
+  dplyr::mutate(
+    eucalipto = dplyr::case_when(is.na(eucalipto) == TRUE ~ total,
+                                 TRUE ~ eucalipto),
+    
+    pinus = dplyr::case_when(
+      municipio == "Ivaté" ~ perc,
+      municipio == "São Jorge do Patrocínio" ~ perc,
+      TRUE ~ pinus
+    )
+    
+  ) %>%
+  dplyr::select(-total, -perc) %>%
+  tidyr::pivot_longer(cols = corte:pinus,
+                      names_to = "tipo_genero",
+                      values_to = "area_ha") %>% 
+  dplyr::mutate(area_ha = readr::parse_number(area_ha, locale = loc)) %>% 
+  dplyr::mutate(tabela_fonte = paste0("Área de Plantio de ",
+                                      nome_nucleo_regional),
+                nucleo_regional = nome_nucleo_regional) %>%
+  dplyr::relocate(tabela_fonte:nucleo_regional, .before = municipio) 
 
+
+print(tab_umuarama_tidy, n = 30)
 
 
 
 # Maringá -----------------------------------------------------------------
 
-# MAIS DE BOAS
+nome_nucleo_regional <- "Maringá"
 tab_maringa_tidy <-
   tabelas_pag_sem_imgs %>%
-  purrr::pluck("Maringá")
+  purrr::pluck("Maringá") %>% 
+  tibble::as_tibble(.name_repair = "unique") %>%
+  purrr::set_names(c("municipio", "corte", "eucalipto_pinus", "total", "percentual")) %>% 
+  dplyr::slice(-c(1:3)) %>% 
+  dplyr::select(-total, -percentual) %>% 
+  tidyr::separate(col = eucalipto_pinus,
+                  sep = " ",
+                  into = c("eucalipto", "pinus")) %>%
+  dplyr::mutate(
+    corte = dplyr::case_when(stringr::str_detect(corte, "%") ~ NA_character_,
+                             TRUE ~ corte),
+    
+    eucalipto = dplyr::case_when(stringr::str_detect(eucalipto, "%") ~ NA_character_,
+                             TRUE ~ eucalipto),
+    
+    pinus = dplyr::case_when(stringr::str_detect(pinus, "%") ~ NA_character_,
+                                 TRUE ~ pinus)
+    
+  ) %>%
+  dplyr::mutate(dplyr::across(.cols = corte:pinus,
+                              readr::parse_number, locale = loc)) %>%
+  dplyr::filter(!municipio %in% c("TOTAL", "%")) %>%
+  tidyr::pivot_longer(cols = corte:pinus,
+                      names_to = "tipo_genero",
+                      values_to = "area_ha") %>% 
+  dplyr::mutate(tabela_fonte = paste0("Área de Plantio de ",
+                                      nome_nucleo_regional),
+                nucleo_regional = nome_nucleo_regional) %>%
+  dplyr::relocate(tabela_fonte:nucleo_regional, .before = municipio) 
+
+tab_maringa_tidy
 
 
 # Cascavel ----------------------------------------------------------------
 
-# INFERNINHO
+nome_nucleo_regional <- "Cascavel"
 tab_cascavel_tidy <-
   tabelas_pag_sem_imgs %>%
-  purrr::pluck("Cascavel")
+  purrr::pluck("Cascavel") %>% 
+  tibble::as_tibble(.name_repair = "unique") %>%
+  purrr::set_names(c("municipio", "corte", "euc_pin_total_perc", "percentual")) %>%
+  dplyr::slice(-c(1:5)) %>%
+  tidyr::separate(
+    col = euc_pin_total_perc,
+    sep = " ",
+    into = c("eucalipto", "pinus", "total", "perc")
+  ) %>%
+  dplyr::mutate(dplyr::across(dplyr::everything(),
+                              dplyr::na_if, "")) %>%
+  dplyr::select(-percentual) %>%
+  dplyr::mutate(
+    eucalipto = dplyr::case_when(
+      stringr::str_detect(eucalipto, "%") ~ NA_character_,
+      TRUE ~ eucalipto
+    ),
+
+    pinus = dplyr::case_when(stringr::str_detect(pinus, "%") ~ NA_character_,
+                             TRUE ~ pinus)
+
+  ) %>%
+  dplyr::filter(!municipio %in% c("TOTAL", "%")) %>%
+  dplyr::mutate(
+    eucalipto = dplyr::case_when(is.na(eucalipto) == TRUE ~ total,
+                                 TRUE ~ eucalipto),
+
+    pinus = dplyr::case_when(
+      municipio == "Céu Azul" ~ perc,
+      municipio == "Lindoeste" ~ perc,
+      municipio == "Santa Terezinha do Itaipu" ~ perc,    
+      TRUE ~ pinus
+    )
+
+  ) %>%
+  dplyr::select(-total, -perc) %>%
+  tidyr::pivot_longer(cols = corte:pinus,
+                      names_to = "tipo_genero",
+                      values_to = "area_ha") %>% 
+  dplyr::mutate(area_ha = readr::parse_number(area_ha, locale = loc)) %>% 
+  dplyr::mutate(tabela_fonte = paste0("Área de Plantio de ",
+                                      nome_nucleo_regional),
+                nucleo_regional = nome_nucleo_regional) %>%
+  dplyr::relocate(tabela_fonte:nucleo_regional, .before = municipio) 
+  
+  
+  
+
+tab_cascavel_tidy
+
+# Empilhar tabelas --------------------------------------------------------
 
 
+# criar lista das tabelas individuais
+list_nucleos_individuais <- list(
+  tab_guarapuava_tidy,
+  tab_umuarama_tidy,
+  tab_maringa_tidy,
+  tab_cascavel_tidy
+)
+
+
+# empilhar todas junto da principal
+tabs_tidy_pag_sem_imagens <-
+  tabelas_tidy_pag_SEM_imgs %>% 
+  dplyr::bind_rows(list_nucleos_individuais)
+
+
+
+# Salvar tabela -----------------------------------------------------------
+saveRDS(tabs_tidy_pag_sem_imagens,"./data/tbs_tidy_pag_sem_imagens.rds")
