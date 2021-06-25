@@ -1,4 +1,7 @@
 
+# Carregar pipe e função --------------------------------------------------
+'%>%' <- magrittr::`%>%`
+source("./R/03-fn-faxinar-tabela-nucleo-regional-paginas-sem-imagens.R")
 
 # Tabela 2 em diante - Páginas sem imagens com tabelas ident. -------------
 
@@ -55,30 +58,89 @@ tabelas_tidy_pag_SEM_imgs <-
   purrr::map_dfr(.x = nucleos_formula_a,
                  ~ faxinar_tabela_ng_pag_SEM_img(tabelas_pag_sem_imgs, .x))
 
+# Conferir rapidamente
+tabelas_tidy_pag_SEM_imgs %>% 
+  tidyr::pivot_wider(names_from = "tipo_genero",
+                     values_from = "area_ha") %>% 
+  print(n = 100)
 
 
 
 # Guarapuava --------------------------------------------------------------
+
+loc <- readr::locale(decimal_mark = ",", grouping_mark = ".")
+
+nome_nucleo_regional <- "Guarapuava"
 tab_guarapuava_tidy <-
   tabelas_pag_sem_imgs %>% 
-  purrr::pluck("Guarapuava")
-
+  purrr::pluck("Guarapuava") %>% 
+  tibble::as_tibble(.name_repair = "unique") %>%
+  purrr::set_names(c("municipio", "corte", "eucalipto_pinus", "erro","total", "percentual")) %>%
+  dplyr::slice(-c(1:5)) %>%
+  dplyr::mutate(dplyr::across(dplyr::everything(),
+                              dplyr::na_if, "")) %>%
+  dplyr::select(-erro, -total, -percentual) %>%
+  dplyr::mutate(tabela_fonte = paste0("Área de Plantio de ",
+                                      nome_nucleo_regional),
+                nucleo_regional = nome_nucleo_regional) %>%
+  dplyr::relocate(tabela_fonte:nucleo_regional, .before = municipio) %>%
+  tidyr::separate(col = eucalipto_pinus,
+                  sep = " ",
+                  into = c("eucalipto", "pinus")) %>%
+  dplyr::mutate(
+    
+    pinus = dplyr::case_when(stringr::str_detect(pinus, "%") ~ NA_character_,
+                             TRUE ~ pinus),
+    
+    eucalipto = dplyr::case_when(stringr::str_detect(eucalipto, "%") ~ NA_character_,
+                                 TRUE ~ eucalipto),
+    
+    corte = dplyr::case_when(stringr::str_detect(corte, "%") ~ NA_character_,
+                             TRUE ~ corte)
+    
+  ) %>% 
+  dplyr::mutate(dplyr::across(.cols = corte:pinus,
+                              readr::parse_number, locale = loc)) %>%
+  dplyr::filter(!municipio %in% c("TOTAL", "%")) %>% 
+  
+  tidyr::pivot_longer(cols = corte:pinus,
+                      names_to = "tipo_genero",
+                      values_to = "area_ha")
 
 
 # Umuarama ----------------------------------------------------------------
+
+# PROBLEMAAAAA
 tab_umuarama_tidy <-
   tabelas_pag_sem_imgs %>% 
-  purrr::pluck("Umuarama")
+  purrr::pluck("Umuarama") %>%
+  tibble::as_tibble(.name_repair = "unique") %>%
+  purrr::set_names(c("municipio", "corte", "eucalipto_pinus_total", "percentual")) %>%
+  dplyr::slice(-c(1:4)) %>%
+  dplyr::mutate(dplyr::across(dplyr::everything(),
+                              dplyr::na_if, "")) %>%
+  
+  tidyr::separate(col = eucalipto_pinus_total,
+                  sep = " ",
+                  into = c("eucalipto", "pinus", "total")) %>%
+  dplyr::select(-total, -percentual) 
+
 
 
 
 # Maringá -----------------------------------------------------------------
-tab_maringa_tidy %>%
+
+# MAIS DE BOAS
+tab_maringa_tidy <-
   tabelas_pag_sem_imgs %>%
   purrr::pluck("Maringá")
 
 
 # Cascavel ----------------------------------------------------------------
-tab_cascavel_tidy %>%
+
+# INFERNINHO
+tab_cascavel_tidy <-
   tabelas_pag_sem_imgs %>%
   purrr::pluck("Cascavel")
+
+
