@@ -66,3 +66,19 @@ tbs_com_imagens %>%
                      values_from = "area_ha") %>% 
   print(n = 50)
 
+
+
+# Tabela Ivaiporã b - Com imagem ------------------------------------------
+
+# carregar arquivo
+tb_ivaipora_b <- readr::read_rds("./data/tb_ivaipora_b.rds")
+
+# comparar manualmente com a página 16 do pdf:
+# IFPR e SFB-páginas-36,40,42,44-46,48-49,51-53,55,57-58,60-61,63-64,66,68-69,71-tabelas
+
+tb_ivaipora_b %>% 
+  tidyr::pivot_wider(names_from = "tipo_genero",
+                     values_from = "area_ha")
+
+
+
