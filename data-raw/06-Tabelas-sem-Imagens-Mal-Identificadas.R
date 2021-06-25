@@ -1,4 +1,9 @@
 
+# Carregar pipe e função --------------------------------------------------
+'%>%' <- magrittr::`%>%`
+source("./R/04-fn-faxinar-tabela-nucleo-regional-paginas-sem-imagens-tab-mal-identif.R")
+
+
 # Tabela 2 em diante - Páginas sem imagens com tabelas zoadas ------------
 
 # caminho do pdf
@@ -11,6 +16,8 @@ nucleos_regionais_tab_semi_ident <- c("Pato Branco",
                                       "Paranavaí",
                                       "Jacarezinho")
 
+# Extrair tabelas ---------------------------------------------------------
+
 # extrair tabelas
 tabelas_pag_sem_imgs_tab_semi_ident <-
   tabulizer::extract_tables(url_mapeamento,
@@ -19,5 +26,78 @@ tabelas_pag_sem_imgs_tab_semi_ident <-
 # Renomear listas
 names(tabelas_pag_sem_imgs_tab_semi_ident) <- nucleos_regionais_tab_semi_ident
 
+
+
+
+# Faxinar tabelas ---------------------------------------------------------
+
+
 # Printar no console
 print(tabelas_pag_sem_imgs_tab_semi_ident)
+
+# Pato Branco - o único que precisa tirar 6 linhas, pode ser extraído com uma fórmula
+# União da Vitória - precisa retirar somente 5 linhas do começo e filtrar TOTAL - usar fórmula
+# Paranavaí -  mais complicado, ta duplicando o total na coluna do pinus - extrair individualmente
+# Jacarezinho mesmo problema de cima - extrair individualmente
+
+
+# Pato Branco -------------------------------------------------------------
+
+nucleo_regional <- nucleos_regionais_tab_semi_ident[1]
+tab_pato_branco <-
+  tabelas_pag_sem_imgs_tab_semi_ident %>% 
+  purrr::pluck(nucleo_regional) %>%
+  tibble::as_tibble(.name_repair = "unique") %>%
+  purrr::set_names(c("all", "percentual")) %>%
+  dplyr::slice(-c(1:6)) %>%
+  faxinar_tabela_ng_mal_identif(nucleo_regional)
+  
+  
+# Conferindo totais
+tab_pato_branco %>% 
+  dplyr::group_by(tipo_genero) %>% 
+  dplyr::summarise(sum(area_ha, na.rm = TRUE))
+
+
+# União da Vitória --------------------------------------------------------
+
+nucleo_regional <- nucleos_regionais_tab_semi_ident[2]
+
+tab_uniao_da_vitoria <-
+  tabelas_pag_sem_imgs_tab_semi_ident %>% 
+  purrr::pluck(nucleo_regional) %>%
+  tibble::as_tibble(.name_repair = "unique") %>%
+  purrr::set_names(c("all", "percentual")) %>%
+  dplyr::slice(-c(1:5)) %>%
+  faxinar_tabela_ng_mal_identif(nucleo_regional) 
+  
+
+# Conferindo totais
+tab_uniao_da_vitoria %>% 
+  dplyr::group_by(tipo_genero) %>% 
+  dplyr::summarise(sum(area_ha))
+    
+
+
+# Paranavaí ---------------------------------------------------------------
+
+loc <- readr::locale(decimal_mark = ",", grouping_mark = ".")
+
+nucleo_regional <- nucleos_regionais_tab_semi_ident[3]
+
+tabelas_pag_sem_imgs_tab_semi_ident %>% 
+  purrr::pluck(nucleo_regional) %>%
+  tibble::as_tibble(.name_repair = "unique") %>%
+  purrr::set_names(c("all", "percentual")) %>%
+  dplyr::slice(-c(1:5))
+
+  
+  
+
+# Jacarezinho -------------------------------------------------------------
+
+
+
+
+  
+  
