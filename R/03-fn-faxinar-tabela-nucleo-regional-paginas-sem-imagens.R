@@ -6,7 +6,9 @@
 #' prática e utilizável. A noção de utilização como base de dados se estrutura 
 #' no conceito de "tidy".
 #' 
-#' Como casa tabela é extraida de uma maneira, no script é destacado quais núcleos
+#' Essa fórmula é para faxinar tabelas das páginas sem imagens.
+#' 
+#' Como cada tabela é extraida de uma maneira, no script é destacado quais núcleos
 #' regionais podem ser faxinados com essa fórmula.
 #' 
 #' @param tabela_bruta_extraida tabela extraida do pdf pela função tabulizer::extract_tables
