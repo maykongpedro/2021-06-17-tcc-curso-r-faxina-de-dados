@@ -5,7 +5,7 @@
 #' mapeamento SFB-IFPR, deixando elas estruturadas de uma maneira prática e utilizável.
 #' O conceito de utilização como base de dados se estrutura no conceito de "tidy".
 #' Essa função foi especificamente ajustada para as páginas que continham tabelas
-#' e imagens.
+#' e imagens, cuja extração resultou em tabelas com 5 ou 6 colunas, todas com dados.
 #' 
 #' @param tabela_bruta_extraida tabela extraida do pdf pela função tabulizer::extract_tables
 #' @param nome_nucleo_regional nome do núcleo regional
