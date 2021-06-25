@@ -1,5 +1,10 @@
 
 
+# Carregar pipe e função --------------------------------------------------
+'%>%' <- magrittr::`%>%`
+source("./R/01-fn-faxinar-tabela-nucleo-regional-paginas-com-imagens.R")
+
+
 # Tabela Ivaiporã - b -----------------------------------------------------
 
 # otter caminho
@@ -16,6 +21,9 @@ tabela_ivaipora_b <- tabulizer::extract_tables(paginas_processadas,
 
 print(tabela_ivaipora_b)
 
+
+# Extrair corretamente ----------------------------------------------------
+
 # Arquivo processado apenas com a tabela da página 61 do mapeamento original
 pag61 <- "./data-raw/pdf/01-SFB-IFPR/IFPR e SFB-61-apenas-tabela.pdf"
 tabela_ivaipora_b <- tabulizer::extract_tables(pag61)
@@ -26,9 +34,17 @@ names(tabela_ivaipora_b) <- "Ivaiporã - b"
 # Printa no console
 print(tabela_ivaipora_b)
 
+
+# Faxinar -----------------------------------------------------------------
+
 # Faxinar a tabela 
 tab_ivaipora_b_tidy <-
   faxinar_tabela_ng_pag_com_img(tabela_ivaipora_b, "Ivaiporã - b") %>% 
   dplyr::filter(!municipio %in% c("TOTAL", "%"))
 
 print(tab_ivaipora_b_tidy)
+
+
+# Salvar tabela -----------------------------------------------------------
+saveRDS(tab_ivaipora_b_tidy,"./data/tb_ivaipora_b.rds")
+
