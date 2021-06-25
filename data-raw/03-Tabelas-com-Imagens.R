@@ -3,7 +3,7 @@
 # Carregar pipe e função --------------------------------------------------
 '%>%' <- magrittr::`%>%`
 source("./R/01-fn-faxinar-tabela-nucleo-regional-paginas-com-imagens.R")
-
+source("./R/02-fn-faxinar-tabela-nucleo-regional-paginas-com-imagens-col-erro.R")
 
 # Tabela 2 em diante - Páginas com imagens --------------------------------
 
@@ -56,17 +56,75 @@ faxinar_tabela_ng_pag_com_img(tabelas_pag_com_imgs,
                               nucleos_regionais_tab_imgs[9]) 
 
 
-# Extrair e juntar todas as tabelas
-tabelas_tidy_pag_com_imgs <-
-  purrr::map_dfr(.x = nucleos_regionais_tab_imgs,
+# Um problema que encontrei foi o fato de algumas tabelas terem 6 colunas
+# e a quarta ser vazia, então para essas tive que estruturar uma fórmula diferente
+# Então a princípio a faxina é feita nas tabelas com 5 e 6 colunas que possuam
+# dados e mesmo padrão. Após isso, é feita a extração apenas para as tabelas
+# que possuem uma coluna vazia.
+
+
+# Extrair e juntar todas as tabelas com 5 e 6 colunas que tenham dados
+nucleos_regionais_com_dados <- c(
+  "Campo Mourão",
+  "Cianorte - a",
+  "Cianorte - b",
+  "Umuarama",
+  "Apucarana",
+  "Cornélio Procópio",
+  "Ivaiporã - a",
+  "Londrina - a",
+  "Londrina - b",
+  "Cascavel",
+  "Dois Vizinhos",
+  "Toledo"
+)
+  
+
+tabelas_tidy_pag_com_imgs_a <-
+  purrr::map_dfr(.x = nucleos_regionais_com_dados,
                  ~ faxinar_tabela_ng_pag_com_img(tabelas_pag_com_imgs, .x))
 
 # outra notação
-# purrr::map_dfr(.x = nucleos_regionais_tab_imgs, 
+# purrr::map_dfr(.x = nucleos_regionais_com_dados, 
 #                .f = faxinar_tabela_ng_pag_com_img,
 #                tabela_bruta_extraida = tabelas_pag_com_imgs)
-print(tabelas_tidy_pag_com_imgs)
 
+print(tabelas_tidy_pag_com_imgs_a)
+
+# verificar algumas tabelas
+# faxinar_tabela_ng_pag_com_img(tabelas_pag_com_imgs, nucleos_regionais_com_dados[12]) %>%
+#   tidyr::pivot_wider(names_from = "tipo_genero",
+#                      values_from = "area_ha")
+
+
+
+# Extrair e juntar todas as tabelas que contenham uma coluna vazia
+nucleos_regionais_com_col_vazia <- c(
+  "Curitiba",
+  "Guarapuava",
+  "Irati",
+  "Laranjeiras do Sul - a",
+  "Laranjeiras do Sul - b",
+  "Ponta Grossa - a",
+  "Ponta Grossa - b",
+  "Paranaguá",
+  "Francisco Beltrão"
+)
+
+tabelas_tidy_pag_com_imgs_b <-
+  purrr::map_dfr(.x = nucleos_regionais_com_col_vazia,
+                 ~ faxinar_tabela_ng_pag_com_img_col_erro(tabelas_pag_com_imgs, .x))
+
+
+# verificar algumas tabelas
+# faxinar_tabela_ng_pag_com_img_col_erro(tabelas_pag_com_imgs, "Francisco Beltrão") %>%
+#   tidyr::pivot_wider(names_from = "tipo_genero",
+#                      values_from = "area_ha")
+
+# empilhar as duas bases
+tabelas_tidy_pag_com_imgs <-
+  tabelas_tidy_pag_com_imgs_a %>% 
+  dplyr::bind_rows(tabelas_tidy_pag_com_imgs_b)
 
 
 # Consertar problemas em dois núcleos -------------------------------------
@@ -96,60 +154,24 @@ tabelas_tidy_pag_com_imgs %>%
                      values_from = "area_ha") %>% 
   tibble::view()
 
-# nesse caso tinha uma coluna adicional antes de total, isso impactou na geração
-# dos valores, então tenho que deletar ela da base principal e fazer a faxina
-# separadamente. Depois disso, empilho ela junto com as outras.
+# nesse caso o total veio junto, então basta retirar a linha de municipio
+# que contém "NA"
 
+
+# ajustando erros
 tabelas_tidy_pag_com_imgs_ajust <- 
   tabelas_tidy_pag_com_imgs %>% 
   dplyr::filter(municipio != 50,
-                nucleo_regional != "Paranaguá")
+                !is.na(municipio))
 
-
-
-
-# Faxinar apenas Paranaguá ------------------------------------------------
-
-#tabelas_pag_com_imgs[["Paranaguá"]]
-nome_nucleo_regional <- "Paranaguá"
-loc <- readr::locale(decimal_mark = ",", grouping_mark = ".")
-
-tb_paranagua_tidy <-
-  tabelas_pag_com_imgs %>% 
-  purrr::pluck(nome_nucleo_regional) %>%
-  tibble::as_tibble(.name_repair = "unique") %>%
-  purrr::set_names(c("municipio", "corte", "eucalipto_pinus", "erro", "total", "percentual")) %>%
-  dplyr::slice(-c(1:3)) %>%
-  dplyr::mutate(dplyr::across(dplyr::everything(),
-                              dplyr::na_if, "")) %>%
-  dplyr::select(-erro, -total, -percentual) %>%
-  dplyr::mutate(tabela_fonte = paste0("Área de Plantio de ",
-                                      nome_nucleo_regional),
-                nucleo_regional = nome_nucleo_regional) %>%
-  dplyr::relocate(tabela_fonte:nucleo_regional, .before = municipio) %>%
-  tidyr::separate(col = eucalipto_pinus,
-                  sep = " ",
-                  into = c("eucalipto", "pinus")) %>% 
-  dplyr::mutate(dplyr::across(.cols = corte:pinus,
-                              readr::parse_number, locale = loc)) %>%
-  dplyr::filter(municipio != "%",
-                !is.na(municipio)) %>% 
-  tidyr::pivot_longer(cols = corte:pinus,
-                      names_to = "tipo_genero",
-                      values_to = "area_ha")
-
+tibble::view(tabelas_tidy_pag_com_imgs_ajust)
 
 # Organizar base ----------------------------------------------------------
-
-# empilhar paranaguá
-tabs_tidy_pag_com_imgs_ajust_final <-
-  tabelas_tidy_pag_com_imgs_ajust %>% 
-  dplyr::bind_rows(tb_paranagua_tidy)
 
 
 # Arrumar nomes de tabelas "a" e "b"
 tabs_tidy_pag_com_imgs_ajust_final <-
-  tabs_tidy_pag_com_imgs_ajust_final %>% 
+  tabelas_tidy_pag_com_imgs_ajust %>% 
   dplyr::mutate(tabela_fonte = stringr::str_remove_all(tabela_fonte, " - a"),
                 tabela_fonte = stringr::str_remove_all(tabela_fonte, " - b"),
                 nucleo_regional = stringr::str_remove_all(nucleo_regional, " - a"),
@@ -157,8 +179,9 @@ tabs_tidy_pag_com_imgs_ajust_final <-
   )
 
 
-# Visualizar
-tibble::view(tabs_tidy_pag_com_imgs_ajust_final)
+# Visualizar colunas ajustadas
+tabs_tidy_pag_com_imgs_ajust_final %>% 
+  dplyr::distinct(tabela_fonte, nucleo_regional)
 
 
 # Salvar tabela -----------------------------------------------------------
