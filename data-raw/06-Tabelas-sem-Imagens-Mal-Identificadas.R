@@ -2,6 +2,7 @@
 # Carregar pipe e função --------------------------------------------------
 '%>%' <- magrittr::`%>%`
 source("./R/04-fn-faxinar-tabela-nucleo-regional-paginas-sem-imagens-tab-mal-identif.R")
+source("./R/05-fn-faxinar-tabela-nucleo-regional-paginas-sem-imagens-tab-mal-identif-col-pinus.R")
 
 
 # Tabela 2 em diante - Páginas sem imagens com tabelas zoadas ------------
@@ -43,7 +44,7 @@ print(tabelas_pag_sem_imgs_tab_semi_ident)
 
 # Pato Branco -------------------------------------------------------------
 
-nucleo_regional <- nucleos_regionais_tab_semi_ident[1]
+nome_nucleo_regional <- nucleos_regionais_tab_semi_ident[1]
 tab_pato_branco_tidy <-
   tabelas_pag_sem_imgs_tab_semi_ident %>% 
   purrr::pluck(nome_nucleo_regional) %>%
@@ -61,7 +62,7 @@ tab_pato_branco_tidy %>%
 
 # União da Vitória --------------------------------------------------------
 
-nucleo_regional <- nucleos_regionais_tab_semi_ident[2]
+nome_nucleo_regional <- nucleos_regionais_tab_semi_ident[2]
 
 tab_uniao_da_vitoria_tidy <-
   tabelas_pag_sem_imgs_tab_semi_ident %>% 
@@ -177,7 +178,7 @@ pinus_jacarezinho <- c(
 )
 
 # ajustando
-pinus_jacarezinho_tidy <-
+tab_jacarezinho_tidy <-
   tab_jacarezinho %>% 
   dplyr::mutate(
     
@@ -201,11 +202,36 @@ pinus_jacarezinho_tidy <-
 
 
 # Conferindo totais
-pinus_jacarezinho_tidy %>% 
+tab_jacarezinho_tidy %>% 
   dplyr::group_by(tipo_genero) %>% 
   dplyr::summarise(sum(area_ha, na.rm = TRUE))
 
 
 
-  
+# Empilhar todas as tabelas -----------------------------------------------
+
+# criar lista das tabelas individuais
+list_nucleos_individuais <- list(
+  tab_uniao_da_vitoria_tidy,
+  tab_paranavai_tidy,
+  tab_jacarezinho_tidy
+)
+
+
+# empilhar todas junto da principal
+tabs_tidy_pag_sem_imagens_mal_ident <-
+  tab_pato_branco_tidy %>% 
+  dplyr::bind_rows(list_nucleos_individuais)
+
+
+# conferir somatórios
+tabs_tidy_pag_sem_imagens_mal_ident %>% 
+  dplyr::group_by(nucleo_regional) %>% 
+  dplyr::summarise(area = sum(area_ha, na.rm= TRUE))
+
+
+# Salvar tabela -----------------------------------------------------------
+saveRDS(tabs_tidy_pag_sem_imagens_mal_ident,"./data/tbs_tidy_pag_sem_imagens_mal_ident.rds")
+
+
   
