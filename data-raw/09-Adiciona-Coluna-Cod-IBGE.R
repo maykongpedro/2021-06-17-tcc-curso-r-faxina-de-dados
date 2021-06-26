@@ -145,7 +145,7 @@ base_geo_ajust %>%
   ggplot2::facet_wrap(~tipo_genero) +
   ggplot2::labs(fill = "Legenda: Classe de área (ha)",
                 subtitle = "Mapeamento de florestas plantadas do Serviço Florestal Brasileiro (SFB) \nem conjunto com o Instituto de Florestas do Paraná (IFPR)",
-                caption = "**Dataviz:** @maykongpedro | **Fonte:** AAA") +
+                caption = "**Dataviz:** @maykongpedro | **Fonte:** Mapeamento SFB-IFPR no Paraná (Dados organizados pelo autor)") +
   ggplot2::ggtitle("Distribuição espacial de florestas plantadas no Paraná") +
   
   ggspatial::annotation_north_arrow(
@@ -158,7 +158,6 @@ base_geo_ajust %>%
     style = ggspatial::north_arrow_fancy_orienteering
   ) +
   ggspatial::annotation_scale() +
-  #ggplot2::theme_bw() +
   ggiraphExtra::theme_clean2() +
   ggplot2::theme(
     strip.background.x = ggplot2::element_rect(
@@ -168,8 +167,8 @@ base_geo_ajust %>%
                                        vjust = 13),
     plot.subtitle = ggplot2::element_text(vjust = 17),
     plot.caption = ggtext::element_markdown(),
-    legend.position = c(0.31, 1.24), #horizontal, vertical
-    plot.margin = ggplot2::unit(c(1.5,2,0,2), "cm"),
+    legend.position = c(0.28, 1.22), #horizontal, vertical
+    plot.margin = ggplot2::unit(c(1.5,1,0,1), "cm"),
     panel.grid = ggplot2::element_blank()
   )
 
