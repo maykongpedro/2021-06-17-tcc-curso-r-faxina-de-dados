@@ -44,17 +44,17 @@ print(tabelas_pag_sem_imgs_tab_semi_ident)
 # Pato Branco -------------------------------------------------------------
 
 nucleo_regional <- nucleos_regionais_tab_semi_ident[1]
-tab_pato_branco <-
+tab_pato_branco_tidy <-
   tabelas_pag_sem_imgs_tab_semi_ident %>% 
-  purrr::pluck(nucleo_regional) %>%
+  purrr::pluck(nome_nucleo_regional) %>%
   tibble::as_tibble(.name_repair = "unique") %>%
   purrr::set_names(c("all", "percentual")) %>%
   dplyr::slice(-c(1:6)) %>%
-  faxinar_tabela_ng_mal_identif(nucleo_regional)
+  faxinar_tabela_ng_mal_identif(nome_nucleo_regional)
   
   
 # Conferindo totais
-tab_pato_branco %>% 
+tab_pato_branco_tidy %>% 
   dplyr::group_by(tipo_genero) %>% 
   dplyr::summarise(sum(area_ha, na.rm = TRUE))
 
@@ -63,17 +63,17 @@ tab_pato_branco %>%
 
 nucleo_regional <- nucleos_regionais_tab_semi_ident[2]
 
-tab_uniao_da_vitoria <-
+tab_uniao_da_vitoria_tidy <-
   tabelas_pag_sem_imgs_tab_semi_ident %>% 
-  purrr::pluck(nucleo_regional) %>%
+  purrr::pluck(nome_nucleo_regional) %>%
   tibble::as_tibble(.name_repair = "unique") %>%
   purrr::set_names(c("all", "percentual")) %>%
   dplyr::slice(-c(1:5)) %>%
-  faxinar_tabela_ng_mal_identif(nucleo_regional) 
+  faxinar_tabela_ng_mal_identif(nome_nucleo_regional) 
   
 
 # Conferindo totais
-tab_uniao_da_vitoria %>% 
+tab_uniao_da_vitoria_tidy %>% 
   dplyr::group_by(tipo_genero) %>% 
   dplyr::summarise(sum(area_ha))
     
@@ -83,19 +83,127 @@ tab_uniao_da_vitoria %>%
 
 loc <- readr::locale(decimal_mark = ",", grouping_mark = ".")
 
-nucleo_regional <- nucleos_regionais_tab_semi_ident[3]
+nome_nucleo_regional <- nucleos_regionais_tab_semi_ident[3]
 
-tabelas_pag_sem_imgs_tab_semi_ident %>% 
-  purrr::pluck(nucleo_regional) %>%
-  tibble::as_tibble(.name_repair = "unique") %>%
-  purrr::set_names(c("all", "percentual")) %>%
-  dplyr::slice(-c(1:5))
+tab_paranavai <-
+  faxinar_tabela_ng_mal_identif_col_pinus(tabelas_pag_sem_imgs_tab_semi_ident,
+                                          nome_nucleo_regional)
 
   
-  
+# printar no console
+print(tab_paranavai, n = 100)
+
+# está gerando números a mais na coluna de pinus, preciso deletar eles
+
+# Definir municípios que contém pinus
+pinus_paranavai <- c(
+  "Alto Paraná",
+  "Amaporã",
+  "Guairaçá",
+  "Loanda",
+  "Marilena",
+  "Mirador",
+  "Paranavaí",
+  "Planaltina do Paraná",
+  "Porto Rico",
+  "Santa Cruz de Monte Castelo",
+  "Santa Isabel do Ivaí",
+  "Santa Mônica",
+  "São João do Caiuá",
+  "São Pedro do Paraná",
+  "Tamboara"
+)
+
+# ajustando
+tab_paranavai_tidy <-
+  tab_paranavai %>% 
+  dplyr::mutate(
+    
+    # transformar em character
+    pinus = as.character(pinus),
+    
+    # excluir infos onde nao deve ter pinus (de acordo com as cidades no vetor auxiliar)
+    pinus = dplyr::case_when(!municipio %in% pinus_paranavai ~ NA_character_,
+                             TRUE ~ pinus),
+    
+    # transformar novamente em número
+    pinus = readr::parse_number(pinus, 
+                                locale = readr::locale(decimal_mark = ".", 
+                                                       grouping_mark = ","))
+    
+  ) %>% 
+  tidyr::pivot_longer(cols = corte:pinus,
+                      names_to = "tipo_genero",
+                      values_to = "area_ha")
+
+
+# Conferindo totais
+tab_paranavai_tidy %>% 
+  dplyr::group_by(tipo_genero) %>% 
+  dplyr::summarise(sum(area_ha, na.rm = TRUE))
+
+
 
 # Jacarezinho -------------------------------------------------------------
 
+nome_nucleo_regional <- nucleos_regionais_tab_semi_ident[4]
+
+tab_jacarezinho <-
+  faxinar_tabela_ng_mal_identif_col_pinus(tabelas_pag_sem_imgs_tab_semi_ident,
+                                          nome_nucleo_regional)
+  
+  
+# printar no console
+print(tab_jacarezinho, n = 100)  
+
+
+
+# está gerando números a mais na coluna de pinus, preciso deletar eles
+
+# Definir municípios que contém pinus
+pinus_jacarezinho <- c(
+  "Curiúva",
+  "Figueira",
+  "Ibaiti",
+  "Jaboti",
+  "Japira",
+  "Joaquim Távola",
+  "Pinhalão",
+  "Santo Antônio da Platina",
+  "São José da Boa Vista",
+  "Siqueira Campos",
+  "Tomazina",
+  "Wenceslau Braz"
+)
+
+# ajustando
+pinus_jacarezinho_tidy <-
+  tab_jacarezinho %>% 
+  dplyr::mutate(
+    
+    # transformar em character
+    pinus = as.character(pinus),
+    
+    # excluir infos onde nao deve ter pinus (de acordo com as cidades no vetor auxiliar)
+    pinus = dplyr::case_when(!municipio %in% pinus_jacarezinho ~ NA_character_,
+                             TRUE ~ pinus),
+    
+    # transformar novamente em número
+    pinus = readr::parse_number(pinus, 
+                                locale = readr::locale(decimal_mark = ".", 
+                                                       grouping_mark = ","))
+    
+  ) %>% 
+  tidyr::pivot_longer(cols = corte:pinus,
+                      names_to = "tipo_genero",
+                      values_to = "area_ha")
+
+
+
+# Conferindo totais
+pinus_jacarezinho_tidy %>% 
+  dplyr::group_by(tipo_genero) %>% 
+  dplyr::summarise(sum(area_ha, na.rm = TRUE))
 
 
 
