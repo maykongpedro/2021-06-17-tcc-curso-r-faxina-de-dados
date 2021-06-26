@@ -181,7 +181,7 @@ A estrutura de organização dos arquivos pode ser verificada a seguir:
 
 Com a base tidy será fácil gerar análises e resumos de dados sobre a
 área de florestas plantadas no Paraná referente ao mapeamento publicado
-pela SFB-IFPR em 2015, com ano-base 2014. Os dados pode ser analisados
+pela SFB-IFPR em 2015, com ano-base 2014. Os dados podem ser analisados
 em nível de:
 
 -   Núcleo regional
