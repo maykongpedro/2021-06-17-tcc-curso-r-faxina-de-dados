@@ -81,4 +81,21 @@ tb_ivaipora_b %>%
                      values_from = "area_ha")
 
 
+# Tabelas sem imagens -----------------------------------------------------
+
+
+
+
+# Tabelas sem imagens mal identiicadas ------------------------------------
+
+
+
+
+
+# Tabela Francisco Beltrão b - Sem imagem ---------------------------------
+
+
+
+
+
 
