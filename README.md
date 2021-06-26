@@ -11,38 +11,46 @@
 ## Introdução
 
 Esse repositório consiste no projeto realizado para entrega final do
-curso de Fáxina de Dados da Curso R. Nesse `README` será destacado de
-maneira resumida o que era necessário na entrega do trabalho e o que foi
-feito nesse em específico. O tema escolhido era de livre escolha do
-aluno, decidi por pegar uma base em .pdf referente ao mapeamento de
-florestas plantadas no Paraná, realizado pelo Instituto de Florestas do
-Paraná - IFPR em conjunto com o Serviço Florestal Brasileiro - SFB,
-lançado em 2015. A razão para isso é minha própria formação, Engenharia
-Florestal, e o fato de eu já ter necessitado consultar essa base antes e
+curso de Fáxina de Dados da Curso R. Nesse `README` será destacado o que
+era necessário na entrega do trabalho e o que foi feito nesse em
+específico. O tema escolhido era de livre escolha do aluno, decidi por
+pegar uma base em .pdf referente ao mapeamento de florestas plantadas no
+Paraná, realizado pelo **Instituto de Florestas do Paraná - IFPR** em
+conjunto com o **Serviço Florestal Brasileiro - SFB**, lançado em 2015
+(ano-base 2014). A razão para isso é minha própria formação, Engenharia
+Florestal, e o fato de já ter necessitado consultar essa base antes e
 ter ficado limitado em relação às análises por conta do fato dela ser
-disponibilizada em pdf, a ideia aqui foi unir o útil ao agradável.
+disponibilizada em pdf, a ideia foi unir o útil ao agradável.
 
 ## Objetivo específico
 
 Extrair todas as tabelas do pdf que contenham dados de mapeamento de
 área em hectares de Eucalipto, Pinus e regiões de Corte (colhidas). Após
 isso, consolidar em uma base de dados tidy, onde cada linha representa
-uma observaçõa distinta e as colunas representam variáveis.
+uma observação distinta e as colunas representam variáveis. Mais
+informações sobre esse tipo de base pode ser encontrada no livro da
+[Curso
+R](https://livro.curso-r.com/7-3-tidyr.html#:~:text=Na%20pr%C3%A1tica%2C%20uma%20base%20tidy%20%C3%A9%20aquela%20que,de%20novos%20frameworks%2C%20como%20o%20tidymodels%20para%20modelagem.).
 
 <!-- badges: start -->
-
 <!-- badges: end -->
 
 ## Sobre o projeto
 
-As regras para entrega do trabalho consistiam nos seguintes itens: - A
-base de dados em formato bruto OU um script de acesso a essa base,
-fazendo um download por exemplo. - Um ou mais scripts R que transformem
-a sua base bruta e untidy em uma (ou mais) base(s) tidy.
+As regras para entrega do trabalho consistiam nos seguintes itens:
 
-O(s) script(s) deve(m) necessariamente: - Ler os dados brutos;
+-   A base de dados em formato bruto OU um script de acesso a essa base,
+    fazendo um download por exemplo.
+
+-   Um ou mais scripts R que transformem a sua base bruta e untidy em
+    uma (ou mais) base(s) tidy.
+
+O(s) script(s) deve(m) necessariamente: -
+
+-   Ler os dados brutos;
 
 -   Manipular uma coluna do tipo texto;
+
 -   Salvar uma base de dados ao final do script que esteja no formato
     tidy “aumentado” que foi apresentado no começo do curso, no formato
     .rds.
@@ -178,9 +186,9 @@ em nível de:
 
 -   Núcleo regional
 -   Município
--   Área de corte (cohida)
--   Área de eucalipto (plantado)
--   Área de pinus (plantado)
+-   Área em hectares de corte (colhida)
+-   Área em hectares de eucalipto (plantado)
+-   Área em hectares de pinus (plantado)
 
 ## Análise da base: Distribuição espacial
 
@@ -207,7 +215,7 @@ base_muni_pr <- geobr::read_municipality(code_muni= "PR", year=2010)
 ### Transformar e juntar bases
 
 ``` r
-# fazer joiin da base com o shape
+# fazer join da base com o shape
 base_geo <-
   base_muni_pr %>% 
   dplyr::left_join(base_mapeamento, by = "code_muni")
@@ -229,15 +237,11 @@ plot <-
     tipo_genero = dplyr::case_when(tipo_genero == "pinus" ~ "Pinus",
                                    tipo_genero == "eucalipto" ~ "Eucalipto",
                                    TRUE ~ tipo_genero),
-    
     area_ha = cut(area_ha,
                   quebras,
                   dig.lab = 5),
-    
     area_ha = stringr::str_remove_all(area_ha, "\\(|\\]"),
-    
     area_ha = stringr::str_replace_all(area_ha,  ",", "-"),
-    
     area_ha = factor(area_ha,
                      levels = ordem,
                      ordered = TRUE)
