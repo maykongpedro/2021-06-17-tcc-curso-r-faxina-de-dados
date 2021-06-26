@@ -12,11 +12,11 @@
 # Carregar bases ----------------------------------------------------------
 
 # Carregar base do mapeamento
-base <- readr::read_rds("./data/mapeamento_SFB-IFPR_completo.rds") 
+base_mapeamento <- readr::read_rds("./data/mapeamento_SFB-IFPR_completo.rds") 
   
 
-# lendo municípios de SP
-muni <- geobr::read_municipality(code_muni= "PR", year=2010)
+# lendo municípios do PR
+base_muni_pr <- geobr::read_municipality(code_muni= "PR", year=2010)
 
 
 
@@ -24,16 +24,45 @@ muni <- geobr::read_municipality(code_muni= "PR", year=2010)
 
 # transformar coluna de municípios
 base_alterada <-
-  base %>% 
+  base_mapeamento %>% 
   dplyr::mutate(municipio = stringr::str_to_lower(municipio))
 
 
 # fazendo primeiro join
 base_geo <-
-  muni %>% 
+  base_muni_pr %>% 
   dplyr::mutate(municipio = stringr::str_to_lower(name_muni)) %>% 
   dplyr::left_join(base_alterada, by = "municipio") 
   #dplyr::filter(is.na(tipo_genero))
+
+
+# identificando itens faltantas
+base_geo %>% 
+  dplyr::filter(is.na(tipo_genero))
+
+
+# fazendo segundo join considerando esses itens
+base_geo_ajust <-
+  base_muni_pr %>% 
+  dplyr::mutate(
+    name_muni = dplyr::case_when(name_muni == "Altônia" ~ "Altonia",
+                                 name_muni == "Flor Da Serra Do Sul" ~ "Flor da Serra Azul",
+                                 name_muni == "Itapejara D'oeste" ~ "Flor da Serra Azul",
+                                 name_muni == "Joaquim Távora" ~ "Joaquim Távola",
+                                 name_muni == "Pérola D'oeste" ~ "Pérola D'Oeste",                                
+                                 name_muni == "Quitandinha" ~ "Quitandinhas",
+                                 name_muni == "Santa Lúcia" ~ "Santa Lucia",
+                                 name_muni == "Santa Tereza Do Oeste" ~ "Santa Terezinha do Oeste",
+                                 name_muni == "Santa Terezinha De Itaipu" ~ "Santa Terezinha do Itaipu",
+                                 TRUE ~ name_muni),
+    
+    municipio = stringr::str_to_lower(name_muni)
+  ) %>% 
+  dplyr::left_join(base_alterada, by = "municipio") %>% 
+  dplyr::filter(is.na(tipo_genero))
+  
+
+
 
 
 # fazendo join considerando os municípios não encontrados
