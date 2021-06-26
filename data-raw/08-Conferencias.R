@@ -61,13 +61,8 @@ tbs_com_imagens %>%
 
 
 tbs_com_imagens %>% 
-  dplyr::filter(nucleo_regional == nucleos_regionais_tab_imgs[[4]]) %>% 
   tidyr::pivot_wider(names_from = "tipo_genero",
                      values_from = "area_ha") %>% 
-  print(n = 50) 
-
-tbs_com_imagens %>% 
-  dplyr::filter(tipo_genero == "pinus") %>% 
   tibble::view()
 
 
@@ -129,9 +124,57 @@ tb_francisco_beltrao_b %>%
 
 # Empilhar todas as bases -------------------------------------------------
 
+# criar lista das tabelas
+list_tabelas_tidy <- list(
+  tb_ivaipora_b,
+  tb_sem_imagens,
+  tb_sem_imagens_mal_ident,
+  tb_francisco_beltrao_b
+)
+
+# empilhando tudo
+tab_mapeamento_tidy <-
+  tbs_com_imagens %>% 
+  
+  # empilhar
+  dplyr::bind_rows(list_tabelas_tidy) %>% 
+  
+  # limpar letras adicionais nos nomes dos núcleos
+  dplyr::mutate(tabela_fonte = stringr::str_remove_all(tabela_fonte, " - a"),
+                tabela_fonte = stringr::str_remove_all(tabela_fonte, " - b"),
+                nucleo_regional = stringr::str_remove_all(nucleo_regional, " - a"),
+                nucleo_regional = stringr::str_remove_all(nucleo_regional, " - b")
+  ) %>% 
+  
+  # organizar por ordem alfábetica
+  dplyr::arrange(nucleo_regional)
+  
 
 
 
+# Conferência final -------------------------------------------------------
 
+# área por nucleo considerando a tabela resumo
+area_por_nucleo <-
+  tb_area_total %>% 
+  dplyr::group_by(nucleo_regional) %>% 
+  dplyr::summarise(area = sum(area_ha)) 
 
+# área por núcleo considerando a tabela completa
+area_por_nucleo_tab_completa <-
+  tab_mapeamento_tidy %>% 
+  dplyr::group_by(nucleo_regional) %>% 
+  dplyr::summarise(total = sum(area_ha, na.rm = TRUE)) 
 
+# verificar diferenças
+area_por_nucleo %>%
+  dplyr::left_join(area_por_nucleo_tab_completa) %>% 
+  dplyr::mutate(dif = total - area) %>% 
+  print(n = 50)
+
+# apenas questões de arrendondamento, show!
+
+# Salvar tabela -----------------------------------------------------------
+saveRDS(tab_mapeamento_tidy,"./data/mapeamento_SFB-IFPR_completo.rds")
+
+  
