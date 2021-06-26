@@ -47,8 +47,6 @@ names(tabelas_pag_com_imgs) <- nucleos_regionais_tab_imgs
 print(tabelas_pag_com_imgs)
 
 
-
-
 # Faxinar e empilhar tabelas ----------------------------------------------
 
 # Faxina genérica
@@ -91,11 +89,11 @@ tabelas_tidy_pag_com_imgs_a <-
 
 print(tabelas_tidy_pag_com_imgs_a)
 
-# verificar algumas tabelas
-# faxinar_tabela_ng_pag_com_img(tabelas_pag_com_imgs, nucleos_regionais_com_dados[12]) %>%
-#   tidyr::pivot_wider(names_from = "tipo_genero",
-#                      values_from = "area_ha")
-
+# verificar tabelas
+tabelas_tidy_pag_com_imgs_a %>% 
+  tidyr::pivot_wider(names_from = "tipo_genero",
+                     values_from = "area_ha") %>% 
+  print(n = 200)
 
 
 # Extrair e juntar todas as tabelas que contenham uma coluna vazia
@@ -107,7 +105,7 @@ nucleos_regionais_com_col_vazia <- c(
   "Laranjeiras do Sul - b",
   "Ponta Grossa - a",
   "Ponta Grossa - b",
-  "Paranaguá",
+  # "Paranaguá",  dá problema, terá que ser extraído individualmente
   "Francisco Beltrão"
 )
 
@@ -116,10 +114,13 @@ tabelas_tidy_pag_com_imgs_b <-
                  ~ faxinar_tabela_ng_pag_com_img_col_erro(tabelas_pag_com_imgs, .x))
 
 
-# verificar algumas tabelas
-# faxinar_tabela_ng_pag_com_img_col_erro(tabelas_pag_com_imgs, "Francisco Beltrão") %>%
-#   tidyr::pivot_wider(names_from = "tipo_genero",
-#                      values_from = "area_ha")
+# verificar  tabelas
+tabelas_tidy_pag_com_imgs_b %>% 
+  tidyr::pivot_wider(names_from = "tipo_genero",
+                     values_from = "area_ha") %>% 
+  print(n = 200)
+
+
 
 # empilhar as duas bases
 tabelas_tidy_pag_com_imgs <-
@@ -127,9 +128,79 @@ tabelas_tidy_pag_com_imgs <-
   dplyr::bind_rows(tabelas_tidy_pag_com_imgs_b)
 
 
-# Consertar problemas em dois núcleos -------------------------------------
 
-# tem problemas em CIANORTE A e PARANAGUA
+
+# Faxinar paranaguá -------------------------------------------------------
+
+loc <- readr::locale(decimal_mark = ",", grouping_mark = ".")
+nome_nucleo_regional <- "Paranaguá"
+
+# municípios que estão dando erro no pinus
+pinus_paranagua <- c(
+  "Antonina",
+  "Matinhos"
+)
+
+# municípios que tem eucalipto
+eucalipto_paranagua <- c(
+  "Guaratuba",
+  "Morretes",
+  "Paranaguá",
+  "Pontal do Paraná"
+)
+
+# ajustar paranaguá
+tab_paranagua_tidy <- 
+  tabelas_pag_com_imgs %>%
+  faxinar_tabela_ng_pag_com_img_col_erro(nome_nucleo_regional) %>%
+  tidyr::pivot_wider(names_from = "tipo_genero",
+                     values_from = "area_ha") %>%
+  
+  # retirar NA da coluna de municipio
+  dplyr::filter(!is.na(municipio)) %>% 
+  
+  # ajustar coluna de euc e de pin
+  dplyr::mutate(
+    
+    # colocar os números faltantes que estão na coluna de euc
+    pinus = dplyr::case_when(municipio %in% pinus_paranagua ~ eucalipto,
+                             TRUE ~ pinus),
+    
+    # converter coluna de euc para character
+    eucalipto = as.character(eucalipto),
+    
+    # deletar números de pinus que estão dentro de euc
+    eucalipto = dplyr::case_when(!municipio %in% eucalipto_paranagua ~ NA_character_,
+                                 TRUE ~ eucalipto),
+    
+    # converter novamente coluna de euc para double
+    eucalipto = readr::parse_number(eucalipto, 
+                                    locale = readr::locale(decimal_mark = ".",
+                                                           grouping_mark = ","))
+    
+  ) %>% 
+  
+  tidyr::pivot_longer(cols = corte:pinus,
+                      names_to = "tipo_genero",
+                      values_to = "area_ha")
+
+  
+# Conferindo totais
+tab_paranagua_tidy %>% 
+  dplyr::group_by(tipo_genero) %>% 
+  dplyr::summarise(total = sum(area_ha, na.rm = TRUE))
+
+
+# Empilhar paranaguá na base principal
+tabelas_tidy_pag_com_imgs <-
+  tabelas_tidy_pag_com_imgs %>% 
+  dplyr::bind_rows(tab_paranagua_tidy)
+
+
+
+# Consertar problemas em  Cianorte --------------------------------------
+
+# tem problemas em CIANORTE
 tibble::view(tabelas_tidy_pag_com_imgs)
 
 
@@ -139,32 +210,18 @@ tabelas_tidy_pag_com_imgs %>%
   dplyr::filter(nucleo_regional == "Cianorte - a") %>% 
   tidyr::pivot_wider(names_from = "tipo_genero",
                      values_from = "area_ha") %>% 
-  tibble::view()
+  print(n = 100)
 
 # em Cianorte ele pegou o número da página e colocou como parte da tabela, basta
-# excluir as linhas com número "50" da coluna município
-
-
-# verificar tabela individualmente - Paranaguá
-tabelas_pag_com_imgs[["Paranaguá"]]
-
-tabelas_tidy_pag_com_imgs %>% 
-  dplyr::filter(nucleo_regional == "Paranaguá") %>% 
-  tidyr::pivot_wider(names_from = "tipo_genero",
-                     values_from = "area_ha") %>% 
-  tibble::view()
-
-# nesse caso o total veio junto, então basta retirar a linha de municipio
-# que contém "NA"
-
+# excluir a linha com número "50" da coluna município
 
 # ajustando erros
 tabelas_tidy_pag_com_imgs_ajust <- 
   tabelas_tidy_pag_com_imgs %>% 
-  dplyr::filter(municipio != 50,
-                !is.na(municipio))
+  dplyr::filter(municipio != 50)
 
 tibble::view(tabelas_tidy_pag_com_imgs_ajust)
+
 
 # Organizar base ----------------------------------------------------------
 
