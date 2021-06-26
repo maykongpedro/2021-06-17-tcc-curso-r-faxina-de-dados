@@ -96,7 +96,7 @@ Com a base tidy será fácil gerar análises e resumos de dados sobre a área de
 Uma análise rápida que pode ser feita é a distribuição espacial das áreas por gênero de plantio, visando demonstar a utilização da base tidy.
 
 ### Carregar dados
-```{r}
+```{r echo=TRUE, results='hide'}
 # Carregar apenas pipe
 '%>%' <- magrittr::`%>%`
 
@@ -110,7 +110,7 @@ base_muni_pr <- geobr::read_municipality(code_muni= "PR", year=2010)
 ```
 
 ### Transformar e juntar bases
-```{r echo=TRUE}
+```{r echo=TRUE, results='hide'}
 # fazer joiin da base com o shape
 base_geo <-
   base_muni_pr %>% 
@@ -120,7 +120,7 @@ base_geo <-
 
 
 ### Plotar mapa
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r echo=TRUE, message=FALSE, warning=FALSE, results='hide'}
 quebras <- c(0, 1000, 5000, 10000, 20000, 30000, 40000, 50000)
 ordem <- c("0-1000", "1000-5000", "5000-10000", "10000-20000", "20000-30000", "30000-40000", "40000-50000")
 
