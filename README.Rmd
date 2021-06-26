@@ -201,7 +201,7 @@ plot <-
 ```
 
 
-![](https://github.com/maykongpedro/2021-06-17-tcc-curso-r-faxina-de-dados/raw/r-studio-cloud/inst/plot_mapa.png)
+![](https://github.com/maykongpedro/2021-06-17-tcc-curso-r-faxina-de-dados/raw/r-studio-cloud/inst/plot_mapa_ajust.png)
 
 
 
