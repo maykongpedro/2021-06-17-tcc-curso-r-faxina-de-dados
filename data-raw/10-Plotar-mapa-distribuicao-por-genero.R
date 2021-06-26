@@ -109,6 +109,6 @@ base_geo %>%
 
 # Salvando gráfico
 ggplot2::ggsave(
-  filename = "./inst/plot_mapa.png",
+  filename = "./inst/plot_mapa_ajust.png",
   dpi = 300
 )
