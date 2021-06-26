@@ -148,8 +148,9 @@ tab_mapeamento_tidy <-
   
   # organizar por ordem alfábetica
   dplyr::arrange(nucleo_regional)
-  
 
+  
+tab_mapeamento_tidy
 
 
 # Conferência final -------------------------------------------------------
@@ -177,4 +178,3 @@ area_por_nucleo %>%
 # Salvar tabela -----------------------------------------------------------
 saveRDS(tab_mapeamento_tidy,"./data/mapeamento_SFB-IFPR_completo.rds")
 
-  
