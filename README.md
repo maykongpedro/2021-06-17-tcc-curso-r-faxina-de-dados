@@ -1,25 +1,29 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# project
+# Fáxina de dados do mapeamento de florestas plantadas SFB-IFPR no Paraná
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of project is to …
+As regras para entrega do trabalho consitiam nos seguintes itens:
+- A base de dados em formato bruto OU um script de acesso a essa base, fazendo um download por exemplo.
+- Um ou mais scripts R que transformem a sua base bruta e untidy em uma (ou mais) base(s) tidy. 
 
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
+O(s) script(s) deve(m) necessariamente:
+- Ler os dados brutos;
+- Manipular uma coluna do tipo texto;
+- Salvar uma base de dados ao final do script que esteja no formato tidy “aumentado” que apresentamos no começo do curso, no formato .rds.
 
-``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
+
+
+
+### Por que a base pode ser considerada untidy? 
+
+### Como foram organizados os arquivos para transformar essa base em tidy?
+
+### Que tipo de análise a base tidy possibilitá?
+
 ```
 
 You’ll still need to render `README.Rmd` regularly, to keep `README.md`
