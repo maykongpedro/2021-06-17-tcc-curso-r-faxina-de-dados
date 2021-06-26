@@ -89,25 +89,65 @@ base_mapeamento_com_cod_ibge %>%
 
 
 # Salvar base com o código ibge -------------------------------------------
-saveRDS(base_mapeamento_com_cod_ibge, "./data/mapeamento_SFB-IFPR_completo_cod_IBGE.rds")
+#saveRDS(base_mapeamento_com_cod_ibge, "./data/mapeamento_SFB-IFPR_completo_cod_IBGE.rds")
 
 
 
 # Visualizar o mapa -------------------------------------------------------
-base_geo %>% 
+
+
+quebras <- c(0, 1000, 5000, 10000, 20000, 30000, 40000, 50000)
+ordem <- c("0-1000", "1000-5000", "5000-10000", "10000-20000", "20000-30000", "30000-40000", "40000-50000")
+
+base_geo_ajust %>% 
   dplyr::filter(!is.na(tipo_genero),
-                tipo_genero != "corte") %>% 
+                tipo_genero != "corte"
+                ) %>% 
+  dplyr::mutate(
+    
+    tipo_genero = dplyr::case_when(tipo_genero == "pinus" ~ "Pinus",
+                                   tipo_genero == "eucalipto" ~ "Eucalipto",
+                                   TRUE ~ tipo_genero),
+    
+    area_ha = cut(area_ha,
+                  quebras,
+                  dig.lab = 5),
+    
+    area_ha = stringr::str_remove_all(area_ha, "\\(|\\]"),
+    
+    area_ha = stringr::str_replace_all(area_ha,  ",", "-"),
+    
+    area_ha = factor(area_ha,
+                     levels = ordem,
+                     ordered = TRUE)
+    
+    ) %>% 
+  
   ggplot2::ggplot() +
-  ggplot2::geom_sf(alpha = .9,
+  ggplot2::geom_sf(alpha = .5,
                    color = "white",
-                   size = 0.5) +
+                   size = 0.2) +
   ggplot2::geom_sf(ggplot2::aes(fill = area_ha)) +
-  ggplot2::scale_fill_viridis_c(direction = -1, option = "magma") +
+  
+  ggplot2::scale_fill_viridis_d(
+    direction = -1,
+    option = "magma",
+    guide = ggplot2::guide_legend(
+      keyheight = ggplot2::unit(3, units = "mm"),
+      keywidth = ggplot2::unit(12, units = "mm"),
+      label.position = "top",
+      title.position = 'top',
+      title.theme = ggplot2::element_text(size = 10),
+      nrow = 1
+    )
+  ) +
+  
   ggplot2::facet_wrap(~tipo_genero) +
-  ggplot2::labs(fill = "legenda",
-                subtitle = "subtitulo",
+  ggplot2::labs(fill = "Legenda: Classe de área (ha)",
+                subtitle = "Mapeamento de florestas plantadas do Serviço Florestal Brasileiro (SFB) \nem conjunto com o Instituto de Florestas do Paraná (IFPR)",
                 caption = "**Dataviz:** @maykongpedro | **Fonte:** AAA") +
-  ggplot2::ggtitle("titulo") +
+  ggplot2::ggtitle("Distribuição espacial de florestas plantadas no Paraná") +
+  
   ggspatial::annotation_north_arrow(
     location = "br",
     which_north = "true",
@@ -121,10 +161,22 @@ base_geo %>%
   #ggplot2::theme_bw() +
   ggiraphExtra::theme_clean2() +
   ggplot2::theme(
-    plot.title = ggplot2::element_text(face = "bold"),
-    plot.subtitle = ggtext::element_markdown(),
-    plot.caption = ggtext::element_markdown(hjust = 1),
+    strip.background.x = ggplot2::element_rect(
+      color="black"
+    ),
+    plot.title = ggplot2::element_text(face = "bold",
+                                       vjust = 13),
+    plot.subtitle = ggplot2::element_text(vjust = 17),
+    plot.caption = ggtext::element_markdown(),
+    legend.position = c(0.31, 1.24), #horizontal, vertical
+    plot.margin = ggplot2::unit(c(1.5,2,0,2), "cm"),
     panel.grid = ggplot2::element_blank()
   )
-  
+
+
+# Salvando gráfico
+ggplot2::ggsave(
+  filename = "./inst/plot_mapa.png",
+  dpi = 300
+)
 
