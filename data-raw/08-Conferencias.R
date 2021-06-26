@@ -61,10 +61,14 @@ tbs_com_imagens %>%
 
 
 tbs_com_imagens %>% 
-  dplyr::filter(nucleo_regional == nucleos_regionais_tab_imgs[[2]]) %>% 
+  dplyr::filter(nucleo_regional == nucleos_regionais_tab_imgs[[4]]) %>% 
   tidyr::pivot_wider(names_from = "tipo_genero",
                      values_from = "area_ha") %>% 
-  print(n = 50)
+  print(n = 50) 
+
+tbs_com_imagens %>% 
+  dplyr::filter(tipo_genero == "pinus") %>% 
+  tibble::view()
 
 
 
@@ -82,17 +86,49 @@ tb_ivaipora_b %>%
 
 
 # Tabelas sem imagens -----------------------------------------------------
+tb_sem_imagens <- readr::read_rds("./data/tbs_tidy_pag_sem_imagens.rds")
 
 
+# conferindo Maringá pela soma pois é a única tabela completa dentro dessa base
+tb_sem_imagens %>% 
+  dplyr::filter(nucleo_regional == "Maringá") %>% 
+  dplyr::group_by(nucleo_regional) %>% 
+  dplyr::summarise(total = sum(area_ha, na.rm = TRUE))
+
+# conferindo as outras manualmente
+tb_sem_imagens %>% 
+  dplyr::filter(nucleo_regional != "Maringá") %>% 
+  tidyr::pivot_wider(names_from = "tipo_genero",
+                     values_from = "area_ha") %>% 
+  tibble::view()
 
 
 # Tabelas sem imagens mal identiicadas ------------------------------------
 
+tb_sem_imagens_mal_ident <- readr::read_rds("./data/tbs_tidy_pag_sem_imagens_mal_ident.rds")
 
+
+# conferir com a soma de cada tabela pois elas estão completas
+tb_sem_imagens_mal_ident %>% 
+  dplyr::group_by(nucleo_regional) %>% 
+  dplyr::summarise(total = sum(area_ha, na.rm = TRUE))
 
 
 
 # Tabela Francisco Beltrão b - Sem imagem ---------------------------------
+
+tb_francisco_beltrao_b <- readr::read_rds("./data/tb_tidy_francisco_beltrao.rds")
+
+# conferindo  manualmente
+tb_francisco_beltrao_b %>% 
+  tidyr::pivot_wider(names_from = "tipo_genero",
+                     values_from = "area_ha") %>% 
+  tibble::view()
+
+
+
+# Empilhar todas as bases -------------------------------------------------
+
 
 
 
