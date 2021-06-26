@@ -170,7 +170,7 @@ plot <-
   
   ggplot2::facet_wrap(~tipo_genero) +
   ggplot2::labs(fill = "Legenda: Classe de área (ha)",
-                subtitle = "Mapeamento de florestas plantadas do Serviço Florestal Brasileiro (SFB) \nem conjunto com o Instituto de Florestas do Paraná (IFPR)",
+                subtitle = "Mapeamento de florestas plantadas do Serviço Florestal Brasileiro (SFB) \nem conjunto com o Instituto de Florestas do Paraná (IFPR). Ano-base: 2014",
                 caption = "**Dataviz:** @maykongpedro | **Fonte:** Mapeamento SFB-IFPR no Paraná (Dados organizados pelo autor)") +
   ggplot2::ggtitle("Distribuição espacial de florestas plantadas no Paraná") +
   
