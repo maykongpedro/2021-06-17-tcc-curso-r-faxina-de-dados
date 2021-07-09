@@ -1,12 +1,10 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# project
+# Fáxina de dados do mapeamento de florestas plantadas SFB-IFPR no Paraná
 
 <!-- badges: start -->
 <!-- badges: end -->
-
-# Fáxina de dados do mapeamento de florestas plantadas SFB-IFPR no Paraná
 
 ## Introdução
 
