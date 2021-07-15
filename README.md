@@ -17,8 +17,8 @@ Paraná, realizado pelo **Instituto de Florestas do Paraná - IFPR** em
 conjunto com o **Serviço Florestal Brasileiro - SFB**, lançado em 2015
 (ano-base 2014). A razão para isso é minha própria formação, Engenharia
 Florestal, e o fato de já ter necessitado consultar essa base antes e
-ter ficado limitado em relação às análises por conta do fato dela ser
-disponibilizada em pdf, a ideia foi unir o útil ao agradável.
+ter ficado limitado em relação às análises por conta dela ser
+disponibilizada apenas em pdf, a ideia foi unir o útil ao agradável.
 
 ## Objetivo específico
 
